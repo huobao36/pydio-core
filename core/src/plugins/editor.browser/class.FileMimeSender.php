@@ -62,32 +62,30 @@ class FileMimeSender extends AJXP_Plugin {
 
             $filesize = filesize($destStreamURL . $file);
             $fp = fopen($destStreamURL . $file, "rb");
+            $fileext = substr(strrchr(basename($file), '.'), 1);                            
+            #$fileMime = null; 
+            if(!empty($fileext)) {
+                $regex = "/^([\w\+\-\.\/]+)\s+(\w+\s)*($fileext\s)/i";
+                $lines = file( $this->getbasedir()."/resources/other/mime.types");
+                foreach($lines as $line) {
+                    if(substr($line, 0, 1) == '#')
+                        continue; // skip comments
+                    $line = rtrim($line) . " ";
+                    if(!preg_match($regex, $line, $matches))
+                        continue; // no match to the extension
+                    $fileMime = $matches[1];
+                }
+            }                                                                                
             
-            //Get mimetype with fileinfo PECL extension
-            if(class_exists("finfo")) {
-                $finfo = new finfo(FILEINFO_MIME);
-                $fileMime = $finfo->buffer(fread($fp, 100));
-            }
-            //Get mimetype with (deprecated) mime_content_type
-            elseif(function_exists("mime_content_type")) {
-                $fileMime = @mime_content_type($fp);
-            }
-            //Guess mimetype based on file extension
-            else {
-                $fileExt = substr(strrchr(basename($file), '.'), 1);
-                if(empty($fileExt))
-                    $fileMime = "application/octet-stream";
-                else {
-                    $regex = "/^([\w\+\-\.\/]+)\s+(\w+\s)*($fileExt\s)/i";
-                    $lines = file( $this->getBaseDir()."/resources/other/mime.types");
-                    foreach($lines as $line) {
-                        if(substr($line, 0, 1) == '#')
-                            continue; // skip comments
-                        $line = rtrim($line) . " ";
-                        if(!preg_match($regex, $line, $matches))
-                            continue; // no match to the extension
-                        $fileMime = $matches[1];
-                    }
+            if(empty($fileMime)) {
+                //Get mimetype with fileinfo PECL extension
+                if(class_exists("finfo")) {
+                    $finfo = new finfo(FILEINFO_MIME);
+                    $fileMime = $finfo->buffer(fread($fp, 100));
+                }
+                //Get mimetype with (deprecated) mime_content_type
+                elseif(function_exists("mime_content_type")) {
+                    $fileMime = @mime_content_type($fp);                      
                 }
             }
             fclose($fp);
