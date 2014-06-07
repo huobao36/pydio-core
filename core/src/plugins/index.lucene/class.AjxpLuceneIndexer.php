@@ -69,7 +69,6 @@ class AjxpLuceneIndexer extends AJXP_Plugin{
 
 
     protected function setDefaultAnalyzer(){
-
         switch ($this->getFilteredOption("QUERY_ANALYSER")){
             case "utf8num_insensitive":
                 Zend_Search_Lucene_Analysis_Analyzer::setDefault(new Zend_Search_Lucene_Analysis_Analyzer_Common_Utf8Num_CaseInsensitive());
@@ -106,7 +105,7 @@ class AjxpLuceneIndexer extends AJXP_Plugin{
 	public function applyAction($actionName, $httpVars, $fileVars){
         $messages = ConfService::getMessages();
 		if($actionName == "search"){
-
+            AJXP_Logger::debug("search query:", $httpVars["query"]);
             // TMP
             if(strpos($httpVars["query"], "keyword:") === 0){
                 $parts = explode(":", $httpVars["query"]);
@@ -287,7 +286,6 @@ class AjxpLuceneIndexer extends AJXP_Plugin{
 	}
 
     public function recursiveIndexation($url){
-        //print("Indexing $url \n");
         AJXP_Logger::debug("Indexing content of folder ".$url);
         if(ConfService::currentContextIsCommandLine() && $this->verboseIndexation){
             print("Indexing content of ".$url."\n");
@@ -356,6 +354,7 @@ class AjxpLuceneIndexer extends AJXP_Plugin{
 	 */
 	public function updateNodeIndex($oldNode, $newNode = null, $copy = false){
 		require_once("Zend/Search/Lucene.php");
+        print("updateNodeIndex");
         if(isSet($this->currentIndex)){
             $index = $this->currentIndex;
         }else{
@@ -422,10 +421,15 @@ class AjxpLuceneIndexer extends AJXP_Plugin{
     public function createIndexedDocument($ajxpNode, &$index){
         $ajxpNode->loadNodeInfo();
         $ext = strtolower(pathinfo($ajxpNode->getLabel(), PATHINFO_EXTENSION));
+        
         $parseContent = $this->indexContent;
+
+        AJXP_Logger::debug("search createIndexedDocument parseContent: ", $parseContent);
         if($parseContent && $ajxpNode->bytesize > $this->getFilteredOption("PARSE_CONTENT_MAX_SIZE")){
             $parseContent = false;
         }
+        
+        AJXP_Logger::debug("search createIndexedDocument parseContent: ", $parseContent);
         if($parseContent && in_array($ext, explode(",",$this->getFilteredOption("PARSE_CONTENT_HTML")))){
             $doc = @Zend_Search_Lucene_Document_Html::loadHTMLFile($ajxpNode->getUrl());
         }elseif($parseContent && $ext == "docx" && class_exists("Zend_Search_Lucene_Document_Docx")){
@@ -440,8 +444,12 @@ class AjxpLuceneIndexer extends AJXP_Plugin{
         }else{
             $doc = new Zend_Search_Lucene_Document();
         }
-        if($doc == null) throw new Exception("Could not load document");
 
+        AJXP_Logger::debug("search createIndexedDocument ext: ", $ext);
+        AJXP_Logger::debug("search createIndexedDocument doc parsed: ", $doc);
+
+        if($doc == null) throw new Exception("Could not load document");
+        
         $doc->addField(Zend_Search_Lucene_Field::Keyword("node_url", $ajxpNode->getUrl()), SystemTextEncoding::getEncoding());
         $doc->addField(Zend_Search_Lucene_Field::Keyword("node_path", str_replace("/", "AJXPFAKESEP", $ajxpNode->getPath())), SystemTextEncoding::getEncoding());
         $doc->addField(Zend_Search_Lucene_Field::Text("basename", basename($ajxpNode->getPath())), SystemTextEncoding::getEncoding());
@@ -522,7 +530,8 @@ class AjxpLuceneIndexer extends AJXP_Plugin{
         	$asciiString = iconv($enc, 'ASCII//TRANSLIT//IGNORE', $out);
        		$doc->addField(Zend_Search_Lucene_Field::unStored("body", $asciiString));       		
         }
-        
+         
+        AJXP_Logger::debug("search createIndexedDocument doc fields added: ", $doc);
         $index->addDocument($doc);
         return $doc;
     }
