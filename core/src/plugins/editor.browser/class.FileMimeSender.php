@@ -62,11 +62,11 @@ class FileMimeSender extends AJXP_Plugin {
 
             $filesize = filesize($destStreamURL . $file);
             $fp = fopen($destStreamURL . $file, "rb");
-            $fileext = substr(strrchr(basename($file), '.'), 1);                            
+            $fileExt = substr(strrchr(basename($file), '.'), 1);                            
             #$fileMime = null; 
             if(!empty($fileext)) {
-                $regex = "/^([\w\+\-\.\/]+)\s+(\w+\s)*($fileext\s)/i";
-                $lines = file( $this->getbasedir()."/resources/other/mime.types");
+                $regex = "/^([\w\+\-\.\/]+)\s+(\w+\s)*($fileExt\s)/i";
+                $lines = file( $this->getBasedir()."/resources/other/mime.types");
                 foreach($lines as $line) {
                     if(substr($line, 0, 1) == '#')
                         continue; // skip comments

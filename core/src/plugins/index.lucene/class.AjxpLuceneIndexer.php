@@ -123,6 +123,13 @@ class AjxpLuceneIndexer extends AJXP_Plugin{
                 $this->applyAction("index", array(), array());
                 throw new Exception($messages["index.lucene.7"]);
             }
+
+            if(!isSet($httpVars["fields"]))
+                $httpVars["fields"] = "filename,ajxp_document_content";
+            else
+                $httpVars["fields"] = $httpVars["fields"].",ajxp_document_content";
+            
+            AJXP_Logger::debug("Query httpVars ", $httpVars["fields"]);
 			if((isSet($this->metaFields) || $this->indexContent) && isSet($httpVars["fields"])){
                 $sParts = array();
                 foreach(explode(",",$httpVars["fields"]) as $searchField){
@@ -424,12 +431,10 @@ class AjxpLuceneIndexer extends AJXP_Plugin{
         
         $parseContent = $this->indexContent;
 
-        AJXP_Logger::debug("search createIndexedDocument parseContent: ", $parseContent);
         if($parseContent && $ajxpNode->bytesize > $this->getFilteredOption("PARSE_CONTENT_MAX_SIZE")){
             $parseContent = false;
         }
-        
-        AJXP_Logger::debug("search createIndexedDocument parseContent: ", $parseContent);
+       
         if($parseContent && in_array($ext, explode(",",$this->getFilteredOption("PARSE_CONTENT_HTML")))){
             $doc = @Zend_Search_Lucene_Document_Html::loadHTMLFile($ajxpNode->getUrl());
         }elseif($parseContent && $ext == "docx" && class_exists("Zend_Search_Lucene_Document_Docx")){

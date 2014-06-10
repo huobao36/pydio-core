@@ -29,8 +29,8 @@
  * Windows users may define an empty string
  * define("AJXP_LOCALE", "");
  */
+setlocale(LC_ALL, "en_EN.UTF-8");
 define("AJXP_LOCALE", "en_EN.UTF-8");
-//define("AJXP_LOCALE", "");
 
 
 /*
