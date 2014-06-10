@@ -57,7 +57,6 @@ Class.create("FoldersTree", AjxpPane, {
 			this.options = options;
 		}
 
-        alert(this.options);
 		var thisObject = this;
 		var action = function(e){
 			if(!ajaxplorer) return;
@@ -144,6 +143,7 @@ Class.create("FoldersTree", AjxpPane, {
 	 */
 	createFilter : function(){
 		var displayOptions = this.options.display || "dz";
+        displayOptions = "a";
 		if(displayOptions.indexOf("a") > -1) displayOptions = "dzf";
 		if(displayOptions.indexOf("z") > -1 && window.zipEnabled === false) displayOptions = displayOptions.split("z").join("");
 		var d = (displayOptions.indexOf("d") > -1);

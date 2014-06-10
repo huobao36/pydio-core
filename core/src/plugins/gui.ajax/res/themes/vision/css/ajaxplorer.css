@@ -955,12 +955,13 @@ input.SF_input.SF_number{
 }
 
 #global_toolbar{
-    background-color: #5C5C5C;
+   /* background-color: #5C5C5C;*/
+    background-color: #FFFFFF;
     height: 30px;
     padding: 9px 0 0 5px;
     background-image: url("../images/white_logo.png");
     background-repeat: no-repeat;
-    box-shadow: 0 0 8px rgba(0,0,0,0.4);
+ /*  box-shadow: 0 0 8px rgba(0,0,0,0.4); */
 }
 
 #top_toolbar{
@@ -1523,7 +1524,7 @@ img.simple_button_arrow{
 }
 
 #logging_string {
-    color:#fff;
+    color:#000000;
     font-size:11px;
     float: right;
 }

@@ -591,7 +591,6 @@ Class.create("FilesList", SelectableElements, {
 	 */
 	initGUI: function()
 	{
-        alert(this._displayMode);
 		if(this.observer){
 			this.stopObserving("resize", this.observer);
 		}
