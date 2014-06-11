@@ -1244,9 +1244,12 @@ Class.create("FilesList", SelectableElements, {
     },
 
     getRenderer : function(){
+        return this.ajxpNodeToFileBrowser.bind(this);
+        /**
         if(this._displayMode == "thumb") return this.ajxpNodeToDiv.bind(this);
         else if(this._displayMode == "detail") return this.ajxpNodeToLargeDiv.bind(this);
         else if(this._displayMode == "list") return this.ajxpNodeToTableRow.bind(this);
+        */
     },
 
 	/**
@@ -1288,9 +1291,12 @@ Class.create("FilesList", SelectableElements, {
 		
 		// NOW PARSE LINES
 		this.clearParsingCache();
-		var children = contextNode.getChildren();
+       
         var renderer = this.getRenderer();// (this._displayMode == "list"?this.ajxpNodeToTableRow.bind(this):this.ajxpNodeToDiv.bind(this));
-		for (var i = 0; i < children.length ; i++) 
+/*
+	    var children = contextNode.getChildren();
+
+        for (var i = 0; i < children.length ; i++) 
 		{
 			var child = children[i];
 			var newItem;
@@ -1302,7 +1308,21 @@ Class.create("FilesList", SelectableElements, {
             child.observe("node_replaced", newItem.REPLACE_OBS);
             child.observe("node_removed", newItem.REMOVE_OBS);
 		}
-		this.initRows();
+*/      
+
+
+		var newItem;
+        newItem = renderer(contextNode);
+		newItem.ajxpNode = contextNode;
+        newItem.addClassName("ajxpNodeProvider");
+        newItem.REPLACE_OBS = this.makeItemRefreshObserver(contextNode,  newItem, renderer);
+        newItem.REMOVE_OBS = this.makeItemRemovedObserver(contextNode, newItem);
+        contextNode.observe("node_replaced", newItem.REPLACE_OBS);
+        contextNode.observe("node_removed", newItem.REMOVE_OBS);
+
+		
+
+        this.initRows();
 		
 		if((!this.paginationData || !this.paginationData.get('remote_order')))
 		{
@@ -1500,6 +1520,34 @@ Class.create("FilesList", SelectableElements, {
     clearParsingCache: function(){
         this.parsingCache = new $H();
     },
+
+    
+    /** Populates a node as a file browser
+     *  @param AjxpNode 
+     *  @returns HTMLElement
+     *  
+     */
+    ajxpNodeToFileBrowser : function(ajxpNode){
+        
+        var newRow = new Element('div', {
+            id:slugString(ajxpNode.getPath()),
+            });
+        newRow.setStyle({width:'100%'});
+        if(ajxpNode != 'undefined' && ajxpNode.isLeaf()) {
+            var reposId = ajxpNode.getMetadata().get("repository_id")
+            var href = new Element('iframe', {
+                src: "/index.php?get_action=open_file&repository_id=" + 0 + "&file=" + ajxpNode.getPath(),
+                width: "100%",
+                height: "100%" 
+            });
+            newRow.appendChild(href);
+        }
+        this._htmlElement.update(href);
+//        tBody.appendChild(newRow);
+        return newRow;
+
+    },
+
 
 	/**
 	 * Populate a node as a TR element

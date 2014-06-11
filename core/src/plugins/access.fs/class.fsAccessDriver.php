@@ -800,10 +800,15 @@ class fsAccessDriver extends AbstractAccessDriver implements AjxpWrapperProvider
 				}
 				
 				$cursor = 0;
-				$handle = opendir($path);
+                try {
+				    $handle = opendir($path);
+                } catch (Exception $e) {
+                    exit(1);
+                }
+                /*
 				if(!$handle) {
-					throw new AJXP_Exception("Cannot open dir ".$nonPatchedPath);
-				}
+    				throw new AJXP_Exception("Cannot open dir ".$nonPatchedPath);
+				}*/
 				closedir($handle);				
 				$fullList = array("d" => array(), "z" => array(), "f" => array());				
 
@@ -1327,7 +1332,7 @@ class fsAccessDriver extends AbstractAccessDriver implements AjxpWrapperProvider
 	function countFiles($dirName, $foldersOnly = false, $nonEmptyCheckOnly = false){
 		$handle=@opendir($dirName);
         if($handle === false){
-            throw new Exception("Error while trying to open directory ".$dirName);
+            return 0;
         }
         if($foldersOnly && !call_user_func(array($this->wrapperClassName, "isRemote"))){
             closedir($handle);

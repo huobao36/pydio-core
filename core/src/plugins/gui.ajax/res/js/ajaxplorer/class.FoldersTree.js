@@ -63,7 +63,9 @@ Class.create("FoldersTree", AjxpPane, {
 			ajaxplorer.focusOn(thisObject);
 			if(this.ajxpNode){
                 if(ajaxplorer.getUserSelection().getContextNode() != this.ajxpNode){
-                    ajaxplorer.actionBar.fireDefaultAction("dir", this.ajxpNode);
+                     ajaxplorer.actionBar.fireDefaultAction("dir", this.ajxpNode);
+                    //else
+                    //    ajaxplorer.actionBar.fireDefaultAction("lsf", this.ajxpNode);
                 }
                 ajaxplorer.getUserSelection().setSelectedNodes([this.ajxpNode], thisObject);
 			}
