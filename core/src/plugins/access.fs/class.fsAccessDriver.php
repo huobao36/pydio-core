@@ -800,15 +800,13 @@ class fsAccessDriver extends AbstractAccessDriver implements AjxpWrapperProvider
 				}
 				
 				$cursor = 0;
-                try {
-				    $handle = opendir($path);
-                } catch (Exception $e) {
-                    exit(1);
-                }
-                /*
+                $handle = @opendir($path);
+                     
+                
 				if(!$handle) {
-    				throw new AJXP_Exception("Cannot open dir ".$nonPatchedPath);
-				}*/
+//    				throw new AJXP_Exception("Cannot open dir ".$nonPatchedPath);
+                    exit(1);
+				} 
 				closedir($handle);				
 				$fullList = array("d" => array(), "z" => array(), "f" => array());				
 

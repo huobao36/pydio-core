@@ -1534,9 +1534,9 @@ Class.create("FilesList", SelectableElements, {
             });
         newRow.setStyle({width:'100%'});
         if(ajxpNode != 'undefined' && ajxpNode.isLeaf()) {
-            var reposId = ajxpNode.getMetadata().get("repository_id")
+            var reposId = ajaxplorer.repositoryId;
             var href = new Element('iframe', {
-                src: "/index.php?get_action=open_file&repository_id=" + 0 + "&file=" + ajxpNode.getPath(),
+                src: "/index.php?get_action=open_file&repository_id=" + reposId + "&file=" + ajxpNode.getPath(),
                 width: "100%",
                 height: "100%" 
             });
