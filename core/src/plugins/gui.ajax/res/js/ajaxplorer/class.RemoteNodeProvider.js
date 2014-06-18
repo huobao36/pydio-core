@@ -74,8 +74,8 @@ Class.create("RemoteNodeProvider", {
 			try{				
 				this.parseNodes(node, transport, nodeCallback, childCallback);
 			}catch(e){
-				if(ajaxplorer) ajaxplorer.displayMessage('ERROR', 'Loading error :'+e.message);
-				else alert('Loading error :'+ e.message);
+				//if(ajaxplorer) ajaxplorer.displayMessage('ERROR', 'Loading error :'+e.message);
+				//else alert('Loading error :'+ e.message);
 			}
 		}.bind(this);	
 		conn.sendAsync();
@@ -101,8 +101,8 @@ Class.create("RemoteNodeProvider", {
    			try{
    				this.parseNodes(node, transport, null, nodeCallback, true);
    			}catch(e){
-   				if(ajaxplorer) ajaxplorer.displayMessage('ERROR', 'Loading error :'+e.message);
-   				else alert('Loading error :'+ e.message);
+   				//if(ajaxplorer) ajaxplorer.displayMessage('ERROR', 'Loading error :'+e.message);
+   				//else alert('Loading error :'+ e.message);
    			}
    		}.bind(this);
    		conn.sendSync();

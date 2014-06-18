@@ -151,7 +151,7 @@ Class.create("Connexion", {
 		}else if(Prototype.Browser.IE && transport.responseXML && transport.responseXML.parseError && transport.responseXML.parseError.errorCode != 0){
 			message = "Parsing Error : \n" + transport.responseXML.parseError.reason;
 		}else if(headers.indexOf("text/xml")>-1 && transport.responseXML == null){
-			message = "Unknown Parsing Error!";
+			//	message = "Unknown Parsing Error!";
 		}else if(headers.indexOf("text/xml") == -1 && headers.indexOf("application/json") == -1 && transport.responseText.indexOf("<b>Fatal error</b>") > -1){
 			message = transport.responseText.replace("<br />", "");
 		}else if(transport.status == 500){

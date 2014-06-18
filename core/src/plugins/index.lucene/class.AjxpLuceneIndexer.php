@@ -434,7 +434,7 @@ class AjxpLuceneIndexer extends AJXP_Plugin{
         if($parseContent && $ajxpNode->bytesize > $this->getFilteredOption("PARSE_CONTENT_MAX_SIZE")){
             $parseContent = false;
         }
-       
+      	AJXP_Logger::debug("search createIndexedDocument parseContent: ", $parseContent); 
         if($parseContent && in_array($ext, explode(",",$this->getFilteredOption("PARSE_CONTENT_HTML")))){
             $doc = @Zend_Search_Lucene_Document_Html::loadHTMLFile($ajxpNode->getUrl());
         }elseif($parseContent && $ext == "docx" && class_exists("Zend_Search_Lucene_Document_Docx")){
