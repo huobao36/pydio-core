@@ -177,6 +177,7 @@ class AjxpLuceneIndexer extends AJXP_Plugin{
                 $tmpNode->search_score = sprintf("%0.2f", $hit->score);
 				AJXP_XMLWriter::renderAjxpNode($tmpNode);
 			}
+            AJXP_Logger::debug("tmpnode: ", $tmpNode);
 			AJXP_XMLWriter::close();
             if($commitIndex){
                 $index->commit();
@@ -429,6 +430,7 @@ class AjxpLuceneIndexer extends AJXP_Plugin{
         $ajxpNode->loadNodeInfo();
         $ext = strtolower(pathinfo($ajxpNode->getLabel(), PATHINFO_EXTENSION));
         
+        AJXP_Logger::debug("search createIndexedDocument ext: $ext");
         $parseContent = $this->indexContent;
 
         if($parseContent && $ajxpNode->bytesize > $this->getFilteredOption("PARSE_CONTENT_MAX_SIZE")){
@@ -450,7 +452,6 @@ class AjxpLuceneIndexer extends AJXP_Plugin{
             $doc = new Zend_Search_Lucene_Document();
         }
 
-        AJXP_Logger::debug("search createIndexedDocument ext: ", $ext);
         AJXP_Logger::debug("search createIndexedDocument doc parsed: ", $doc);
 
         if($doc == null) throw new Exception("Could not load document");
