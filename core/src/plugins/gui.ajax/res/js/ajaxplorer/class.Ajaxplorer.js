@@ -644,12 +644,12 @@ Class.create("Ajaxplorer", {
         window.setTimeout(function(){
 
             this._contextHolder.loadPathInfoSync(path, function(foundNode){
-                if(foundNode.isLeaf()) {
-                    this._contextHolder.setPendingSelection(getBaseName(path));
-                    gotoNode = new AjxpNode(getRepName(path));
-                }else{
+//                if(foundNode.isLeaf()) {
+//                    this._contextHolder.setPendingSelection(getBaseName(path));
+//                    gotoNode = new AjxpNode(getRepName(path));
+//                }else{
                     gotoNode = foundNode;
-                }
+//                }
             }.bind(this));
     		this._contextHolder.requireContextChange(gotoNode);
 
