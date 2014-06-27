@@ -66,7 +66,7 @@ class FileMimeSender extends AJXP_Plugin {
             //Get mimetype with fileinfo PECL extension
             if(class_exists("finfo")) {
                 $finfo = new finfo(FILEINFO_MIME);
-                $fileMime = $finfo->buffer(fread($fp, 100));
+                $fileMime = $finfo->buffer(fread($fp, 2000));
 
             	AJXP_Logger::debug("fileMime finfo:", $fileMime);
 
@@ -102,7 +102,7 @@ class FileMimeSender extends AJXP_Plugin {
             // If still no mimetype, give up and serve application/octet-stream
             if(empty($fileMime))
                 $fileMime = "application/octet-stream";
-            AJXP_Logger::debug("fileMime :", $fileMime);
+            //AJXP_Logger::debug("fileMime :", $fileMime);
             $fileMime = "text/html; charset=utf-8";    
             //Send headers
             HTMLWriter::generateInlineHeaders(basename($file), $filesize, $fileMime);

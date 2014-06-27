@@ -35,17 +35,20 @@ Class.create("AjxpTabulator", AjxpPane, {
 		var div = new Element('div', {className:'tabulatorContainer panelHeader'});
 		$(this.htmlElement).insert({top:div});
 		this.tabulatorData.each(function(tabInfo){
+			
 			var td = new Element('span', {className:'toggleHeader', title:MessageHash[tabInfo.title] || MessageHash[tabInfo.label].stripTags()});
-            if(tabInfo.icon){
-                td.insert('<img width="16" height="16" align="absmiddle" src="'+resolveImageSource(tabInfo.icon, '/images/actions/ICON_SIZE', 16)+'">');
-            }
-            if(tabInfo.iconClass){
-                td.insert(new Element('span', {className:tabInfo.iconClass}));
-            }
-            td.insert('<span class="tab_label" ajxp_message_id="'+tabInfo.label+'">'+MessageHash[tabInfo.label]+'</span>');
-			td.observe('click', function(){
-				this.switchTabulator(tabInfo.id);
-			}.bind(this) );
+			if(tabInfo.label == "130") {
+	            if(tabInfo.icon){
+	                td.insert('<img width="16" height="16" align="absmiddle" src="'+resolveImageSource(tabInfo.icon, '/images/actions/ICON_SIZE', 16)+'">');
+	            }
+	            if(tabInfo.iconClass){
+	                td.insert(new Element('span', {className:tabInfo.iconClass}));
+	            }
+	            td.insert('<span class="tab_label" ajxp_message_id="'+tabInfo.label+'">'+MessageHash[tabInfo.label]+'</span>');
+				td.observe('click', function(){
+					this.switchTabulator(tabInfo.id);
+				}.bind(this) );
+			}
 			div.insert(td);
 			tabInfo.headerElement = td;
 			disableTextSelection(td);

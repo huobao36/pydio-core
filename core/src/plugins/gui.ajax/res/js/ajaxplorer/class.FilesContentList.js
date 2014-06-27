@@ -22,7 +22,7 @@
  * The godzilla of Pydio, should be split in smaller pieces..
  * This grid displays either a table of rows or a grid of thumbnail.
  */
-Class.create("FilesList", SelectableElements, {
+Class.create("FilesContentList", SelectableElements, {
 	
 	__implements : ["IAjxpWidget", "IFocusable", "IContextMenuable", "IActionProvider"],
 
@@ -642,7 +642,7 @@ Class.create("FilesList", SelectableElements, {
 				headerData.push({label:label, size:userWidth, leftPadding:leftPadding});				
 			}
 			buffer = '<div id="selectable_div_header-'+this.__currentInstanceIndex+'" class="sort-table"></div>';
-			buffer = buffer + '<div id="table_rows_container-'+this.__currentInstanceIndex+'" class="table_rows_container"><table id="selectable_div-'+this.__currentInstanceIndex+'" class="selectable_div sort-table" width="100%" cellspacing="0"><tbody></tbody></table></div>';
+			buffer = buffer + '<div id="table_rows_container-'+this.__currentInstanceIndex+'" class="table_rows_container"><table id="selectable_div-'+this.__currentInstanceIndex+'" class="selectable_div sort-table" width="100%" height="100%" cellspacing="0"><tbody></tbody></table></div>';
 			this.htmlElement.update(buffer);
             var contentContainer = this.htmlElement.down("div.table_rows_container");
             contentContainer.setStyle((this.gridStyle!="grid")?{overflowX:"hidden",overflowY:(this.options.replaceScroller?"hidden":"auto")}:{overflow:"auto"});
@@ -1244,9 +1244,13 @@ Class.create("FilesList", SelectableElements, {
     },
 
     getRenderer : function(){
+        // return this.ajxpNodeToFileBrowser.bind(this);
+        
         if(this._displayMode == "thumb") return this.ajxpNodeToDiv.bind(this);
         else if(this._displayMode == "detail") return this.ajxpNodeToLargeDiv.bind(this);
-        else if(this._displayMode == "list") return this.ajxpNodeToTableRow.bind(this);
+        else if(this._displayMode == "list") return this.ajxpNodeToFileBrowser.bind(this);
+        // else if(this._displayMode == "list") return this.ajxpNodeToTableRow.bind(this);
+        
     },
 
 	/**
@@ -1288,9 +1292,48 @@ Class.create("FilesList", SelectableElements, {
 		
 		// NOW PARSE LINES
 		this.clearParsingCache();
-		var children = contextNode.getChildren();
+       
         var renderer = this.getRenderer();// (this._displayMode == "list"?this.ajxpNodeToTableRow.bind(this):this.ajxpNodeToDiv.bind(this));
-		for (var i = 0; i < children.length ; i++) 
+       
+        if(this._displayMode != "list") {
+
+    	    var children = contextNode.getChildren();
+    
+            for (var i = 0; i < children.length ; i++) 
+    		{
+    			var child = children[i];
+    			var newItem;
+                newItem = renderer(child);
+    			newItem.ajxpNode = child;
+                newItem.addClassName("ajxpNodeProvider");
+                newItem.REPLACE_OBS = this.makeItemRefreshObserver(child, newItem, renderer);
+                newItem.REMOVE_OBS = this.makeItemRemovedObserver(child, newItem);
+                child.observe("node_replaced", newItem.REPLACE_OBS);
+                child.observe("node_removed", newItem.REMOVE_OBS);
+    		}
+
+        } else {
+
+		    var newItem;
+            newItem = renderer(contextNode);
+		    newItem.ajxpNode = contextNode;
+            newItem.addClassName("ajxpNodeProvider");
+            newItem.REPLACE_OBS = this.makeItemRefreshObserver(contextNode,  newItem, renderer);
+            newItem.REMOVE_OBS = this.makeItemRemovedObserver(contextNode, newItem);
+            contextNode.observe("node_replaced", newItem.REPLACE_OBS);
+            contextNode.observe("node_removed", newItem.REMOVE_OBS);
+
+
+        }
+ 
+
+
+
+
+/*
+	    var children = contextNode.getChildren();
+
+        for (var i = 0; i < children.length ; i++) 
 		{
 			var child = children[i];
 			var newItem;
@@ -1302,7 +1345,21 @@ Class.create("FilesList", SelectableElements, {
             child.observe("node_replaced", newItem.REPLACE_OBS);
             child.observe("node_removed", newItem.REMOVE_OBS);
 		}
-		this.initRows();
+*/      
+       
+/*
+		var newItem;
+        newItem = renderer(contextNode);
+		newItem.ajxpNode = contextNode;
+        newItem.addClassName("ajxpNodeProvider");
+        newItem.REPLACE_OBS = this.makeItemRefreshObserver(contextNode,  newItem, renderer);
+        newItem.REMOVE_OBS = this.makeItemRemovedObserver(contextNode, newItem);
+        contextNode.observe("node_replaced", newItem.REPLACE_OBS);
+        contextNode.observe("node_removed", newItem.REMOVE_OBS);
+*/
+		
+
+        this.initRows();
 		
 		if((!this.paginationData || !this.paginationData.get('remote_order')))
 		{
@@ -1500,6 +1557,34 @@ Class.create("FilesList", SelectableElements, {
     clearParsingCache: function(){
         this.parsingCache = new $H();
     },
+
+    
+    /** Populates a node as a file browser
+     *  @param AjxpNode 
+     *  @returns HTMLElement
+     *  
+     */
+    ajxpNodeToFileBrowser : function(ajxpNode){
+        
+        var newRow = new Element('div', {
+            id:slugString(ajxpNode.getPath()),
+            });
+        newRow.setStyle({width:'100%'});
+        if(ajxpNode != 'undefined' && ajxpNode.isLeaf()) {
+            var reposId = ajaxplorer.repositoryId;
+            var href = new Element('iframe', {
+                src: "/index.php?get_action=open_file&repository_id=" + reposId + "&file=" + ajxpNode.getPath(),
+                width: "100%",
+                height: "100%" 
+            });
+            newRow.appendChild(href);
+        }
+        this._htmlElement.update(href);
+//        tBody.appendChild(newRow);
+        return newRow;
+
+    },
+
 
 	/**
 	 * Populate a node as a TR element

@@ -641,7 +641,7 @@ Class.create("FilesList", SelectableElements, {
 				}
 				headerData.push({label:label, size:userWidth, leftPadding:leftPadding});				
 			}
-			buffer = '<div id="selectable_div_header-'+this.__currentInstanceIndex+'" class="sort-table"></div>';
+			buffer = '<div id="selectable_div_header-'+this.__currentInstanceIndex+'" class="sort-table" style="height: 0px"></div>';
 			buffer = buffer + '<div id="table_rows_container-'+this.__currentInstanceIndex+'" class="table_rows_container"><table id="selectable_div-'+this.__currentInstanceIndex+'" class="selectable_div sort-table" width="100%" height="100%" cellspacing="0"><tbody></tbody></table></div>';
 			this.htmlElement.update(buffer);
             var contentContainer = this.htmlElement.down("div.table_rows_container");
