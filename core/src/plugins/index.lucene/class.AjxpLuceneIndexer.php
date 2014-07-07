@@ -107,77 +107,51 @@ class AjxpLuceneIndexer extends AJXP_Plugin{
 		if($actionName == "search"){
             AJXP_Logger::debug("search query:", $httpVars["query"]);
             // TMP
-            if(strpos($httpVars["query"], "keyword:") === 0){
-                $parts = explode(":", $httpVars["query"]);
-                $this->applyAction("search_by_keyword", array("field" => $parts[1]), array());
-                return;
-            }
-
-			require_once("Zend/Search/Lucene.php");
-            if($this->isIndexLocked(ConfService::getRepository()->getId())){
-                throw new Exception($messages["index.lucene.6"]);
-            }
-            try{
-                $index =  $this->loadIndex(ConfService::getRepository()->getId(), false);
-            }catch(Exception $ex){
-                $this->applyAction("index", array(), array());
-                throw new Exception($messages["index.lucene.7"]);
-            }
-
-            if(!isSet($httpVars["fields"]))
-                $httpVars["fields"] = "filename,ajxp_document_content";
-            else
-                $httpVars["fields"] = $httpVars["fields"].",ajxp_document_content";
-            
-            AJXP_Logger::debug("Query httpVars ", $httpVars["fields"]);
-			if((isSet($this->metaFields) || $this->indexContent) && isSet($httpVars["fields"])){
-                $sParts = array();
-                foreach(explode(",",$httpVars["fields"]) as $searchField){
-                    if($searchField == "filename"){
-                        $sParts[] = "basename:".$httpVars["query"];
-                    }else if(in_array($searchField, $this->metaFields)){
-                        $sParts[] = "ajxp_meta_".$searchField.":".$httpVars["query"];
-                    }else if($searchField == "ajxp_document_content"){
-                        $sParts[] = "title:".$httpVars["query"];
-                        $sParts[] = "body:".$httpVars["query"];
-                        $sParts[] = "keywords:".$httpVars["query"];
-                    }
-                }
-                $query = implode(" OR ", $sParts);
-                $query = "ajxp_scope:shared AND ($query)";
-                AJXP_Logger::debug("Query : $query");
-			}else{
-				$index->setDefaultSearchField("basename");
-				$query = $httpVars["query"];
-			}
-            $this->setDefaultAnalyzer();
-            if($query == "*"){
-                $index->setDefaultSearchField("ajxp_node");
-                $query = "yes";
-                $hits = $index->find($query, "node_url", SORT_STRING);
-            }else{
-                $hits = $index->find($query);
-            }
-            $commitIndex = false;
-
 			AJXP_XMLWriter::header();
-			foreach ($hits as $hit){
-                if($hit->serialized_metadata!=null){
-                    $meta = unserialize(base64_decode($hit->serialized_metadata));
-                	$tmpNode = new AJXP_Node(SystemTextEncoding::fromUTF8($hit->node_url), $meta);
-                }else{
-                	$tmpNode = new AJXP_Node(SystemTextEncoding::fromUTF8($hit->node_url), array());
-                    $tmpNode->loadNodeInfo();
-                }
-                if(!file_exists($tmpNode->getUrl())){
-                    $index->delete($hit->id);
-                    $commitIndex = true;
-                    continue;
-                }
-                $tmpNode->search_score = sprintf("%0.2f", $hit->score);
-				AJXP_XMLWriter::renderAjxpNode($tmpNode);
-			}
-            AJXP_Logger::debug("tmpnode: ", $tmpNode);
+			$jsonurl = "http://127.0.0.1:8080/qa.json?keywords=".$httpVars["query"]."&province=bj,sh";
+			AJXP_Logger::debug("json url:", $jsonurl);
+			$response = file_get_contents($jsonurl);
+			AJXP_Logger::debug($response);
+
+			// Decode the response
+// 			$responseData = json_decode($response, True);
+// 			$urls = $responseData[pages];
+// 			for($i = 0; i < count($urls); $i++) {
+// 				if(empty($uls[$i]))
+// 					continue;
+// 				$url = "ajxp.fs://".ConfService::getCurrentRepositoryId()."/".$urls[$i];
+// 				AJXP_Logger::debug("node_url : $url");
+// 				if(file_exists($url)) {
+// 					$tmpNode = new AJXP_Node(SystemTextEncoding::fromUTF8($url), array());
+// 					$tmpNode->loadNodeInfo();
+// 					$tmpNode->search_score = sprintf("%0.2f", 100);
+// 					AJXP_XMLWriter::renderAjxpNode($tmpNode);
+// 				}
+// 			}
+			
+
+
+
+
+// 			foreach ($hits as $hit){
+// 				AJXP_Logger::debug("node_url : $hit->node_url");
+//                 if($hit->serialized_metadata!=null){
+//                     $meta = unserialize(base64_decode($hit->serialized_metadata));
+//                 	$tmpNode = new AJXP_Node(SystemTextEncoding::fromUTF8($hit->node_url), $meta);
+//                 }else{
+//                 	$tmpNode = new AJXP_Node(SystemTextEncoding::fromUTF8($hit->node_url), array());
+//                     $tmpNode->loadNodeInfo();
+//                 }
+//                 "ajxp.fs://0/" + $url
+//                 if(!file_exists($tmpNode->getUrl())){
+//                     $index->delete($hit->id);
+//                     $commitIndex = true;
+//                     continue;
+//                 }
+//                 $tmpNode->search_score = sprintf("%0.2f", $hit->score);
+// 				AJXP_XMLWriter::renderAjxpNode($tmpNode);
+// 			}
+            
 			AJXP_XMLWriter::close();
             if($commitIndex){
                 $index->commit();
