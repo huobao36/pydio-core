@@ -61,6 +61,7 @@ foreach ($argv as $key => $argument){
 }
 
 $optUser = $options["u"];
+var_dump($optUser);
 if(!empty($optUser)){
 
     if(isSet($options["p"])){

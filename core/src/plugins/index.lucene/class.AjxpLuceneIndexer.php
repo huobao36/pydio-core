@@ -105,29 +105,66 @@ class AjxpLuceneIndexer extends AJXP_Plugin{
 	public function applyAction($actionName, $httpVars, $fileVars){
         $messages = ConfService::getMessages();
 		if($actionName == "search"){
-            AJXP_Logger::debug("search query:", $httpVars["query"]);
+			AJXP_Logger::debug("search query:", $httpVars["query"]);
             // TMP
 			AJXP_XMLWriter::header();
-			$jsonurl = "http://127.0.0.1:8080/qa.json?keywords=".$httpVars["query"]."&province=bj,sh";
+			$baseUrl = "ajxp.fs://".ConfService::getCurrentRepositoryId()."/";
+			$nodes = scandir($baseUrl);
+			$dirs = Array();
+			$provinces = "";
+		    	foreach ($nodes as $node) {
+		    		if(!is_file($baseUrl.$node) && $node != "." && $node != ".." && $node != "recycle_bin") {
+			    		array_push($dirs, $node);
+		    		}
+			}
+			AJXP_Logger::debug($dirs);
+			$jsonurl = "http://127.0.0.1:8080/qa.json?keywords=".$httpVars["query"]."&province=".implode(",", $dirs);
 			AJXP_Logger::debug("json url:", $jsonurl);
 			$response = file_get_contents($jsonurl);
 			AJXP_Logger::debug($response);
+			$responseData = json_decode($response);
+			$urls = $responseData->{"pages"};
+			AJXP_Logger::debug($urls);
+			for($i = 0; $i < count($urls); $i++) {
+				if(empty($urls[$i]))
+					continue;
+				$url = "ajxp.fs://".ConfService::getCurrentRepositoryId()."/".$urls[$i];
+				AJXP_Logger::debug("node_url :", $url);
+				if(file_exists($url)) {
+					$tmpNode = new AJXP_Node(SystemTextEncoding::fromUTF8($url), array());
+					$tmpNode->loadNodeInfo();
+					$tmpNode->search_score = sprintf("%0.2f", 100);
+					AJXP_XMLWriter::renderAjxpNode($tmpNode);
+				}
+			}
 
-			// Decode the response
-// 			$responseData = json_decode($response, True);
-// 			$urls = $responseData[pages];
-// 			for($i = 0; i < count($urls); $i++) {
-// 				if(empty($uls[$i]))
-// 					continue;
-// 				$url = "ajxp.fs://".ConfService::getCurrentRepositoryId()."/".$urls[$i];
-// 				AJXP_Logger::debug("node_url : $url");
-// 				if(file_exists($url)) {
-// 					$tmpNode = new AJXP_Node(SystemTextEncoding::fromUTF8($url), array());
-// 					$tmpNode->loadNodeInfo();
-// 					$tmpNode->search_score = sprintf("%0.2f", 100);
-// 					AJXP_XMLWriter::renderAjxpNode($tmpNode);
-// 				}
-// 			}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 			
 
 
